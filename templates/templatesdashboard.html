@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="container mt-4">
+
+<h1>Dashboard produzione</h1>
+
+<canvas id="grafico" width="400" height="200"></canvas>
+
+<script>
+var ctx = document.getElementById('grafico').getContext('2d');
+var grafico = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ labels|tojson }},
+        datasets: [{
+            label: 'Kg prodotti',
+            data: {{ values|tojson }},
+            backgroundColor: 'rgba(0, 123, 255, 0.5)',
+            borderColor: 'rgba(0, 123, 255, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: { y: { beginAtZero: true } }
+    }
+});
+</script>
+
+<a href="/" class="btn btn-secondary mt-4">⬅ Torna alla lista</a>
+
+</body>
+</html>

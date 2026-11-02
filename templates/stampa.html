@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Stampa prenotazioni</title>
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        h1 { text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        td, th { border: 1px solid black; padding: 8px; }
+    </style>
+</head>
+<body>
+
+<h1>Prenotazioni del {{ data }}</h1>
+
+<table>
+    <tr>
+        <th>Cliente</th>
+        <th>Pasta</th>
+        <th>Quantità</th>
+        <th>Note</th>
+    </tr>
+
+    {% for r in lista %}
+    <tr>
+        <td>{{ r[0] }}</td>
+        <td>{{ r[3] }}</td>
+        <td>{{ r[2] }} kg</td>
+        <td>{{ r[1] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<script>
+    window.print();
+</script>
+
+</body>
+</html>

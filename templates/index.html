@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Prenotazioni</title>
+
+<link rel="manifest" href="/static/manifest.json">
+<script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/static/service-worker.js");
+    }
+</script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <style>
+        body { background: #f5f7fa; }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #0d6efd;
+        }
+
+        .card-prenotazione {
+            border-radius: 12px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+
+        .card-prenotazione h4 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .btn-large {
+            width: 220px;
+            padding: 12px 0;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .btn-home {
+           position: absolute;
+           top: 10px;
+           right: 10px;
+           background: #0d6efd;
+           color: white;
+           padding: 10px 16px;
+           border-radius: 6px;
+           text-decoration: none;
+           font-size: 18px;
+        }
+    </style>
+</head>
+
+<body class="container py-4">
+
+{% if ricerca %}
+<a href="/" class="btn-home">🏠 Home</a>
+{% endif %}
+
+<header class="text-center mb-4">
+    <img src="/static/logo.png" alt="Logo azienda" style="height: 90px;">
+</header>
+
+<div class="page-title">📋 Prenotazioni</div>
+
+<form method="GET" action="/cerca" class="mb-4">
+    <label class="form-label">Cerca per data:</label>
+    <input type="date" name="data" class="form-control" required>
+    <button class="btn btn-primary mt-2">🔍 Cerca</button>
+</form>
+
+<form method="GET" action="/cerca_nome" class="mb-4">
+    <label class="form-label">Cerca per nome:</label>
+    <input type="text" name="nome" class="form-control" placeholder="Inserisci il nome del cliente" required>
+    <button class="btn btn-primary mt-2">🔍 Cerca nominativo</button>
+</form>
+
+{% if ricerca %}
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mt-4">
+
+    <div class="d-flex flex-wrap gap-2">
+        <a href="/stampa_giorno/{{ request.args.get('data') }}" class="btn btn-secondary btn-large">🖨️ Lista del giorno</a>
+        <a href="/stampa_mattina/{{ request.args.get('data') }}" class="btn btn-secondary btn-large">🌅 Mattina</a>
+        <a href="/stampa_pomeriggio/{{ request.args.get('data') }}" class="btn btn-secondary btn-large">🌇 Pomeriggio</a>
+        <a href="/stampa_totale/{{ request.args.get('data') }}" class="btn btn-info btn-large">📦 Totale prodotti</a>
+    </div>
+
+</div>
+{% endif %}
+
+<div class="mt-3 d-flex justify-content-end">
+    <a href="/nuova" class="btn btn-success btn-large">➕ Nuova prenotazione</a>
+</div>
+
+{% for p in prenotazioni %}
+<div class="card-prenotazione">
+
+    <h4>{{ p.nome }}</h4>
+
+    <div><strong>Ritiro:</strong> {{ p.data }}</div>
+    <div><strong>Fascia:</strong> {{ p.fascia }}</div>
+    <div><strong>Note:</strong> {{ p.note }}</div>
+
+    <div class="mt-2"><strong>Prodotti:</strong></div>
+    <ul>
+        {% for prod in p.prodotti %}
+        <li>
+            {% if 'x' in prod[1]|string %}
+                {{ prod[0] }} — {{ prod[1] }}
+            {% else %}
+                {{ prod[0] }} — {{ prod[1] }} kg
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+
+    <div class="mt-3">
+        <strong style="font-size: 1.2rem;">Totale: {{ "%.2f"|format(p.totale) }} €</strong>
+    </div>
+
+    <div class="mt-3 d-flex gap-2">
+        <a href="/modifica/{{ p.id }}" class="btn btn-secondary btn-sm">✏️ Modifica</a>
+        <a href="/cancella/{{ p.id }}" class="btn btn-secondary btn-sm">🗑️ Cancella</a>
+    </div>
+
+</div>
+{% endfor %}
+
+</body>
+</html>
