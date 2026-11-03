@@ -34,18 +34,10 @@ def get_conn():
 # ---------------------------------------------------------
 def init_db():
     if os.getenv("RENDER") is None:
-        return  # In locale NON tocco SQLite, le tabelle già esistono
+        return  # In locale NON tocco SQLite, i prodotti già ci sono
 
     conn = get_conn()
     cur = conn.cursor()
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS clienti (
-            id SERIAL PRIMARY KEY,
-            nome TEXT NOT NULL,
-            telefono TEXT
-        );
-    """)
 
     cur.execute("""
         CREATE TABLE IF NOT EXISTS prodotti (
@@ -55,24 +47,17 @@ def init_db():
         );
     """)
 
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS prenotazioni (
-            id SERIAL PRIMARY KEY,
-            cliente_id INTEGER NOT NULL REFERENCES clienti(id),
-            data_ritiro TEXT NOT NULL,
-            fascia TEXT,
-            note TEXT
-        );
-    """)
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS dettagli (
-            id SERIAL PRIMARY KEY,
-            prenotazione_id INTEGER NOT NULL REFERENCES prenotazioni(id),
-            prodotto_id INTEGER NOT NULL REFERENCES prodotti(id),
-            quantità REAL NOT NULL
-        );
-    """)
+    # Inserimento prodotti SOLO se la tabella è vuota
+    cur.execute("SELECT COUNT(*) FROM prodotti")
+    if cur.fetchone()[0] == 0:
+        cur.execute("INSERT INTO prodotti (nome, prezzo) VALUES ('Raffiche', 12.00)")
+        cur.execute("INSERT INTO prodotti (nome, prezzo) VALUES ('Ravioli', 14.00)")
+        cur.execute("INSERT INTO prodotti (nome, prezzo) VALUES ('Lasagne pronte', 18.00)")
+        cur.execute("INSERT INTO prodotti (nome, prezzo) VALUES ('Gnocchi', 10.00)")
+        cur.execute("INSERT INTO prodotti (nome, prezzo) VALUES ('Tagliatelle', 11.00)")
+        cur.execute("INSERT INTO prodotti (nome, prezzo) VALUES ('Tortellini', 15.00)")
+        cur.execute("INSERT INTO prodotti (nome, prezzo) VALUES ('Cannelloni', 16.00)")
+        cur.execute("INSERT INTO prodotti (nome, prezzo) VALUES ('Pasta al forno', 20.00)")
 
     conn.commit()
     conn.close()
@@ -310,7 +295,7 @@ def nuova():
     conn = get_conn()
     cur = conn.cursor()
 
-    cur.execute("SELECT id, nome, prezzo FROM prodotti")
+    cur.execute("SELECT id, nome, prezzo FROM prodotti ORDER BY nome")
     prodotti = cur.fetchall()
 
     if request.method == "POST":
