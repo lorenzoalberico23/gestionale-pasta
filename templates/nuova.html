@@ -53,60 +53,46 @@
 
         <h5>Prodotti</h5>
 
-        <div id="prodotti-container"></div>
+        <div id="prodotti-container">
 
-        <button type="button" class="btn btn-primary mt-3" onclick="aggiungiProdotto()">
-            ➕ Aggiungi prodotto
-        </button>
+            {% for p in prodotti %}
+            <div class="row mb-2 align-items-center prodotto-riga">
+                <div class="col-4">
+                    <select name="prodotto" class="form-select" onchange="cambiaQuantita(this); calcolaTotale();">
+                        <option value="{{ p[0] }}">{{ p[1] }}</option>
+                    </select>
+                </div>
+
+                <div class="col-3">
+                    <input type="text" name="quantità" class="form-control quantita-input" placeholder="kg" oninput="calcolaTotale()">
+                </div>
+
+                <div class="col-3 text-end">
+                    <span class="prezzo-unitario fw-bold">0.00 €</span>
+                </div>
+
+                <div class="col-2">
+                    <button type="button" class="btn btn-danger w-100" onclick="this.parentElement.parentElement.remove(); calcolaTotale();">
+                        ✖
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
 
         <h4 class="mt-4">Totale: <span id="totale">0.00</span> €</h4>
 
 <script>
-    // Dizionario prezzi: prodotto_id → prezzo
     const prezzi = {
         {% for p in prodotti %}
             "{{ p[0] }}": {{ p[2] }},
         {% endfor %}
     };
 
-    function aggiungiProdotto() {
-        const container = document.getElementById("prodotti-container");
-
-        const div = document.createElement("div");
-        div.classList.add("row", "mb-2", "align-items-center");
-
-        div.innerHTML = `
-            <div class="col-4">
-                <select name="prodotto" class="form-select" onchange="cambiaQuantita(this); calcolaTotale();">
-                    {% for p in prodotti %}
-                        <option value="{{ p[0] }}">{{ p[1] }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="col-3">
-                <!-- Campo quantità dinamico -->
-                <input type="text" name="quantità" class="form-control quantita-input" placeholder="kg" oninput="calcolaTotale()">
-            </div>
-
-            <div class="col-3 text-end">
-                <span class="prezzo-unitario fw-bold">0.00 €</span>
-            </div>
-
-            <div class="col-2">
-                <button type="button" class="btn btn-danger w-100" onclick="this.parentElement.parentElement.remove(); calcolaTotale();">
-                    ✖
-                </button>
-            </div>
-        `;
-
-        container.appendChild(div);
-        calcolaTotale();
-    }
-
     function cambiaQuantita(selectElement) {
         const prodottoNome = selectElement.selectedOptions[0].text.toLowerCase();
-        const riga = selectElement.closest(".row");
+        const riga = selectElement.closest(".prodotto-riga");
         const campo = riga.querySelector(".quantita-input");
 
         if (prodottoNome.includes("lasagne pronte")) {
@@ -121,7 +107,7 @@
     function calcolaTotale() {
         let totale = 0;
 
-        const righe = document.querySelectorAll("#prodotti-container .row");
+        const righe = document.querySelectorAll(".prodotto-riga");
 
         righe.forEach(riga => {
             const select = riga.querySelector("select[name='prodotto']");
@@ -135,7 +121,6 @@
             let quantità = 0;
 
             if (prodottoNome.includes("lasagne pronte")) {
-                // Lasagne: qualsiasi formato vale 1 unità
                 if (valore !== "") quantità = 1;
             } else {
                 quantità = parseFloat(valore) || 0;
@@ -150,6 +135,7 @@
         document.getElementById("totale").textContent = totale.toFixed(2);
     }
 </script>
+
         <div class="d-flex gap-2 mt-4">
             <button class="btn btn-success">💾 Salva prenotazione</button>
             <button type="button" class="btn btn-secondary" onclick="history.back()">⬅ Annulla</button>
