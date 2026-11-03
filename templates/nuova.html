@@ -53,42 +53,60 @@
 
         <h5>Prodotti</h5>
 
-        <div id="prodotti-container">
+        <div id="prodotti-container"></div>
 
-            {% for p in prodotti %}
-            <div class="row mb-2 align-items-center prodotto-riga">
-                <div class="col-4">
-                    <select name="prodotto" class="form-select" onchange="cambiaQuantita(this); calcolaTotale();">
-                        <option value="{{ p[0] }}">{{ p[1] }}</option>
-                    </select>
-                </div>
-
-                <div class="col-3">
-                    <input type="text" name="quantità" class="form-control quantita-input" placeholder="kg" oninput="calcolaTotale()">
-                </div>
-
-                <div class="col-3 text-end">
-                    <span class="prezzo-unitario fw-bold">0.00 €</span>
-                </div>
-
-                <div class="col-2">
-                    <button type="button" class="btn btn-danger w-100" onclick="this.parentElement.parentElement.remove(); calcolaTotale();">
-                        ✖
-                    </button>
-                </div>
-            </div>
-            {% endfor %}
-
-        </div>
+        <button type="button" class="btn btn-primary mt-3" onclick="aggiungiProdotto()">
+            ➕ Aggiungi prodotto
+        </button>
 
         <h4 class="mt-4">Totale: <span id="totale">0.00</span> €</h4>
 
 <script>
+    // Prezzi dei prodotti
     const prezzi = {
         {% for p in prodotti %}
             "{{ p[0] }}": {{ p[2] }},
         {% endfor %}
     };
+
+    // HTML del menu prodotti (blindato)
+    const menuProdotti = `
+        {% for p in prodotti %}
+            <option value="{{ p[0] }}">{{ p[1] }}</option>
+        {% endfor %}
+    `;
+
+    function aggiungiProdotto() {
+        const container = document.getElementById("prodotti-container");
+
+        const div = document.createElement("div");
+        div.classList.add("row", "mb-2", "align-items-center", "prodotto-riga");
+
+        div.innerHTML = `
+            <div class="col-4">
+                <select name="prodotto" class="form-select" onchange="cambiaQuantita(this); calcolaTotale();">
+                    ${menuProdotti}
+                </select>
+            </div>
+
+            <div class="col-3">
+                <input type="text" name="quantità" class="form-control quantita-input" placeholder="kg" oninput="calcolaTotale()">
+            </div>
+
+            <div class="col-3 text-end">
+                <span class="prezzo-unitario fw-bold">0.00 €</span>
+            </div>
+
+            <div class="col-2">
+                <button type="button" class="btn btn-danger w-100" onclick="this.parentElement.parentElement.remove(); calcolaTotale();">
+                    ✖
+                </button>
+            </div>
+        `;
+
+        container.appendChild(div);
+        calcolaTotale();
+    }
 
     function cambiaQuantita(selectElement) {
         const prodottoNome = selectElement.selectedOptions[0].text.toLowerCase();
