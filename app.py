@@ -5,7 +5,6 @@ import psycopg2
 from urllib.parse import urlparse
 
 app = Flask(__name__)
-init_db()
 app.secret_key = "superpassword123"
 
 
