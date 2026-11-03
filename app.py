@@ -5,6 +5,7 @@ import psycopg2
 from urllib.parse import urlparse
 
 app = Flask(__name__)
+init_db()
 app.secret_key = "superpassword123"
 
 
@@ -28,49 +29,46 @@ def init_db():
     conn = get_conn()
     cur = conn.cursor()
 
-    # Prodotti
+    # CLIENTI
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS prodotti (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT NOT NULL,
-        prezzo REAL NOT NULL
-    );
+        CREATE TABLE IF NOT EXISTS clienti (
+            id SERIAL PRIMARY KEY,
+            nome TEXT NOT NULL
+        );
     """)
 
-    # Clienti
+    # PRODOTTI
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS clienti (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT NOT NULL,
-        telefono TEXT
-    );
+        CREATE TABLE IF NOT EXISTS prodotti (
+            id SERIAL PRIMARY KEY,
+            nome TEXT NOT NULL,
+            prezzo REAL NOT NULL
+        );
     """)
 
-    # Prenotazioni
+    # PRENOTAZIONI
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS prenotazioni (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        cliente_id INTEGER NOT NULL,
-        data_ritiro TEXT NOT NULL,
-        fascia TEXT,
-        note TEXT,
-        FOREIGN KEY(cliente_id) REFERENCES clienti(id)
-    );
+        CREATE TABLE IF NOT EXISTS prenotazioni (
+            id SERIAL PRIMARY KEY,
+            cliente_id INTEGER REFERENCES clienti(id),
+            data_ritiro DATE NOT NULL,
+            fascia TEXT NOT NULL,
+            note TEXT
+        );
     """)
 
-    # Dettagli prenotazioni
+    # DETTAGLI
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS dettagli (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        prenotazione_id INTEGER NOT NULL,
-        prodotto_id INTEGER NOT NULL,
-        quantità REAL NOT NULL,
-        FOREIGN KEY(prenotazione_id) REFERENCES prenotazioni(id),
-        FOREIGN KEY(prodotto_id) REFERENCES prodotti(id)
-    );
+        CREATE TABLE IF NOT EXISTS dettagli (
+            id SERIAL PRIMARY KEY,
+            prenotazione_id INTEGER REFERENCES prenotazioni(id),
+            prodotto_id INTEGER REFERENCES prodotti(id),
+            quantità INTEGER NOT NULL
+        );
     """)
 
     conn.commit()
+    cur.close()
     conn.close()
 
 
